@@ -23,6 +23,11 @@ config.rb
 
 # Compiled source #
 ###################
+node_modules
+bower_components
+
+# Compiled source #
+###################
 *.com
 *.class
 *.dll
