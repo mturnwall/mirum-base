@@ -23,6 +23,6 @@
         "jQuery": true,
         "Ember": true,
         "Handlebars": true,
-        "Modernizr": true,
+        "Modernizr": true
     }
 }

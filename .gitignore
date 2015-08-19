@@ -25,6 +25,8 @@ config.rb
 ###################
 node_modules
 bower_components
+.tmp
+dev
 
 # Compiled source #
 ###################
