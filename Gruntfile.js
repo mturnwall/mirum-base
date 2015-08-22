@@ -90,6 +90,17 @@ module.exports = function (grunt) {
                     '<%= config.app %>/css/sass/_modulesMap.scss': '<%= config.app %>/css/sass/modules/**/*'
                 }
             }
+        },
+
+        /**
+         * grunt-contrib-watch
+         * https://github.com/gruntjs/grunt-contrib-watch
+         */
+        watch: {
+            sass: {
+                files: ['<%= config.app %>/css/sass/**/*.scss'],
+                tasks: ['sass:dev', 'postcss:dev']
+            }
         }
     });
 
@@ -114,7 +125,8 @@ module.exports = function (grunt) {
         'clean:dev',
         'sass_globbing',
         'sass:dev',
-        'postcss:dev'
+        'postcss:dev',
+        'watch'
     ]);
 
     grunt.registerTask('default', []);
