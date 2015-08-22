@@ -38,6 +38,18 @@ module.exports = function (grunt) {
         },
 
         /**
+         * grunt-eslint
+         * https://github.com/sindresorhus/grunt-eslint
+         */
+        eslint: {
+            target: [
+                '<%= config.app %>/scripts/{,*/}*.js',
+                '!<%= config.app %>/scripts/libs/*',
+                '!<%= config.app %>/scripts/compiled/*'
+            ]
+        },
+
+        /**
          * grunt-postcss
          * https://github.com/nDmitry/grunt-postcss
          */
@@ -93,6 +105,33 @@ module.exports = function (grunt) {
         },
 
         /**
+         * grunt-contrib-uflify
+         * https://github.com/gruntjs/grunt-contrib-uglify
+         */
+        uglify: {
+            options: {
+                screwIE8: true
+            },
+            dev: {
+                options: {
+                    beautify: true,
+                    mangle: false,
+                    compress: false,
+                    sourceMap: true,
+                    screwIE8: true
+                },
+                files: {
+                    '<%= config.dev %>/scripts/master.js': [
+                        '<%= config.app %>/scripts/{,*/}*.js',
+                        '!<%= config.app %>/scripts/libs/*',
+                        '!<%= config.app %>/scripts/compiled/*'
+                    ]
+                }
+            },
+            dist: {}
+        },
+
+        /**
          * grunt-contrib-watch
          * https://github.com/gruntjs/grunt-contrib-watch
          */
@@ -100,6 +139,14 @@ module.exports = function (grunt) {
             sass: {
                 files: ['<%= config.app %>/css/sass/**/*.scss'],
                 tasks: ['sass:dev', 'postcss:dev']
+            },
+            scripts: {
+                files: [
+                    '<%= config.app %>/scripts/{,*/}*.js',
+                    '!<%= config.app %>/scripts/libs/*',
+                    '!<%= config.app %>/scripts/compiled/*'
+                ],
+                tasks: ['eslint', 'uglify:dev']
             }
         }
     });
@@ -126,6 +173,8 @@ module.exports = function (grunt) {
         'sass_globbing',
         'sass:dev',
         'postcss:dev',
+        'eslint',
+        'uglify:dev',
         'watch'
     ]);
 
