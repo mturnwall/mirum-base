@@ -1,9 +1,9 @@
 'use strict';
-// var LIVERELOAD_PORT = 35729;
-// var lrSnippet = require('connect-livereload')({port: LIVERELOAD_PORT});
-// var mountFolder = function (connect, dir) {
-//     return connect.static(require('path').resolve(dir));
-// };
+var LIVERELOAD_PORT = 35729;
+var lrSnippet = require('connect-livereload')({port: LIVERELOAD_PORT});
+var mountFolder = function (connect, dir) {
+    return connect.static(require('path').resolve(dir));
+};
 
 module.exports = function (grunt) {
 
@@ -30,11 +30,56 @@ module.exports = function (grunt) {
         config: config,
 
         /**
+         * grunt-bowercopy
+         * https://github.com/timmywil/grunt-bowercopy
+         */
+        bowercopy: {
+            libs: {
+                options: {
+                    destPrefix: '<%= config.tmp %>/scripts/libs'
+                },
+                files: {
+                    'jquery.js': 'jquery/dist/jquery.min.js',
+                    'ember.js': 'ember/ember.js'
+                }
+            }
+        },
+
+        /**
          * grunt-contrib-clean
          * https://github.com/gruntjs/grunt-contrib-clean
          */
         clean: {
             dev: ['<%= config.tmp %>', '<%= config.dev %>']
+        },
+
+        /**
+         * grunt-contrib-connect
+         * https://github.com/gruntjs/grunt-contrib-connect
+         */
+        connect: {
+            options: {
+                port: 9001,
+                hostname: '0.0.0.0',
+                livereload: true
+            },
+            server: {
+                options: {
+                    // serve files from both the app and dev folders
+                    base: ['<%= config.app %>', '<%= config.dev %>'],
+                    open: true
+                }
+            }
+        },
+
+        /**
+         * grunt-contrib-copy
+         */
+        copy: {
+            dev: {
+                dest: '<%= config.dev %>/index.html',
+                src: '<%= config.app %>/index.html'
+            }
         },
 
         /**
@@ -48,6 +93,16 @@ module.exports = function (grunt) {
                 '!<%= config.app %>/scripts/compiled/*'
             ]
         },
+
+        /**
+         * grunt-open
+         * https://github.com/jsoverson/grunt-open
+         */
+        // open: {
+        //     server: {
+        //         path: 'http://localhost:<%= connect.server.options.port %>'
+        //     }
+        // },
 
         /**
          * grunt-postcss
@@ -71,6 +126,14 @@ module.exports = function (grunt) {
                     dest: '<%= config.dev %>/css'
                 }]
             }
+        },
+
+        /**
+         * grunt-processhtml
+         * https://github.com/dciccale/grunt-processhtml
+         */
+        processhtml: {
+
         },
 
         /**
@@ -136,6 +199,9 @@ module.exports = function (grunt) {
          * https://github.com/gruntjs/grunt-contrib-watch
          */
         watch: {
+            options: {
+                livereload: true
+            },
             sass: {
                 files: ['<%= config.app %>/css/sass/**/*.scss'],
                 tasks: ['sass:dev', 'postcss:dev']
@@ -147,6 +213,11 @@ module.exports = function (grunt) {
                     '!<%= config.app %>/scripts/compiled/*'
                 ],
                 tasks: ['eslint', 'uglify:dev']
+            },
+            html: {
+                files: [
+                    '<%= config.app %>/*.html'
+                ]
             }
         }
     });
@@ -175,6 +246,8 @@ module.exports = function (grunt) {
         'postcss:dev',
         'eslint',
         'uglify:dev',
+        'connect:server',
+        // 'open:server',
         'watch'
     ]);
 
