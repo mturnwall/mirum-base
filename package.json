@@ -15,7 +15,7 @@
     "grunt-babel": "^5.0.1",
     "grunt-bower-concat": "^0.5.0",
     "grunt-bowercopy": "^1.2.3",
-    "grunt-concurrent": "^2.0.2",
+    "grunt-concurrent": "^2.0.3",
     "grunt-contrib-clean": "^0.6.0",
     "grunt-contrib-connect": "^0.11.2",
     "grunt-contrib-copy": "^0.8.0",

@@ -30,6 +30,26 @@ module.exports = function (grunt) {
         config: config,
 
         /**
+         * grunt-bower-concat
+         * https://github.com/sapegin/grunt-bower-concat
+         */
+        bower_concat: {
+            preloads: {
+                dest: '<%= config.dev %>/scripts/preload.js',
+                include: ['modernizr']
+            },
+            libs: {
+                dest: '<%= config.dev %>/scripts/vendors.js',
+                // array of libraries to not include
+                exclude: ['modernizr']
+            },
+            dist: {
+                dest: '<%= config.dist &/scripts/vendors.js',
+
+            }
+        },
+
+        /**
          * grunt-bowercopy
          * https://github.com/timmywil/grunt-bowercopy
          */
@@ -70,6 +90,15 @@ module.exports = function (grunt) {
                     open: true
                 }
             }
+        },
+
+        /**
+         * grunt-concurrent
+         * https://github.com/sindresorhus/grunt-concurrent
+         */
+        concurrent: {
+            dev: {},
+            dist: {}
         },
 
         /**
@@ -246,9 +275,11 @@ module.exports = function (grunt) {
         'postcss:dev',
         'eslint',
         'uglify:dev',
-        'connect:server',
+        'bower_concat:preloads',
+        'bower_concat:libs',
+        // 'connect:server',
         // 'open:server',
-        'watch'
+        // 'watch'
     ]);
 
     grunt.registerTask('default', []);
