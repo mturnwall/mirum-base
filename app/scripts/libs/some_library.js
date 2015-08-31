@@ -1,1 +1,1 @@
-console.log('do not include me');
+var $ = require('jquery');

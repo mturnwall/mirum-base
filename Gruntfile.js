@@ -66,6 +66,21 @@ module.exports = function (grunt) {
         },
 
         /**
+         * grunt-browserify
+         * https://github.com/jmreidy/grunt-browserify
+         */
+        browserify: {
+            options: {
+                debug:  true,
+                extensions: ['.js']
+            },
+            dev: {
+                src: ['<%= config.app %>/scripts/app.js'],
+                dest: '<%= config.dev %>/scripts/master.js'
+            }
+        },
+
+        /**
          * grunt-contrib-clean
          * https://github.com/gruntjs/grunt-contrib-clean
          */
@@ -241,7 +256,7 @@ module.exports = function (grunt) {
                     '!<%= config.app %>/scripts/libs/*',
                     '!<%= config.app %>/scripts/compiled/*'
                 ],
-                tasks: ['eslint', 'uglify:dev']
+                tasks: ['eslint', 'browserify:dev']
             },
             html: {
                 files: [
@@ -273,13 +288,14 @@ module.exports = function (grunt) {
         'sass_globbing',
         'sass:dev',
         'postcss:dev',
-        'eslint',
-        'uglify:dev',
-        'bower_concat:preloads',
-        'bower_concat:libs',
-        // 'connect:server',
+        // 'eslint',
+        'browserify:dev',
+        // 'uglify:dev',
+        // 'bower_concat:preloads',
+        // 'bower_concat:libs',
+        'connect:server',
         // 'open:server',
-        // 'watch'
+        'watch'
     ]);
 
     grunt.registerTask('default', []);
