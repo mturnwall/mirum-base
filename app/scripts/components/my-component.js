@@ -36,3 +36,4 @@ window.notificationTypes = {
         description: 'If you have a VIN Mismatch, this alert will notify you'
     }
 };
+console.log(window.notificationTypes);

@@ -82,7 +82,7 @@ module.exports = function (grunt) {
             server: {
                 options: {
                     // serve files from both the app and dev folders
-                    base: ['<%= config.app %>', '<%= config.dev %>'],
+                    base: ['<%= config.app %>', '<%= config.tmp %>'],
                     open: true
                 }
             }
@@ -148,7 +148,7 @@ module.exports = function (grunt) {
                     expand: true,
                     cwd: '<%= config.tmp %>/css',
                     src: ['*.css'],
-                    dest: '<%= config.dev %>/css'
+                    dest: '<%= config.tmp %>/css'
                 }]
             }
         },
@@ -209,7 +209,7 @@ module.exports = function (grunt) {
                     screwIE8: true
                 },
                 files: {
-                    '<%= config.dev %>/scripts/master.js': [
+                    '<%= config.tmp %>/scripts/master.js': [
                         '<%= config.app %>/scripts/{,*/}*.js',
                         '!<%= config.app %>/scripts/libs/*',
                         '!<%= config.app %>/scripts/compiled/*'
@@ -270,12 +270,11 @@ module.exports = function (grunt) {
         'sass:dev',
         'postcss:dev',
         'eslint',
-        'uglify:dev',
         'bower_concat:preloads',
         'bower_concat:libs',
-        // 'connect:server',
-        // 'open:server',
-        // 'watch'
+        'uglify:dev',
+        'connect:server',
+        'watch'
     ]);
 
     grunt.registerTask('default', []);
