@@ -35,17 +35,13 @@ module.exports = function (grunt) {
          */
         bower_concat: {
             preloads: {
-                dest: '<%= config.dev %>/scripts/preload.js',
+                dest: '<%= config.tmp %>/scripts/libs/preload.js',
                 include: ['modernizr']
             },
             libs: {
-                dest: '<%= config.dev %>/scripts/vendors.js',
+                dest: '<%= config.tmp %>/scripts/libs/vendors.js',
                 // array of libraries to not include
                 exclude: ['modernizr']
-            },
-            dist: {
-                dest: '<%= config.dist &/scripts/vendors.js',
-
             }
         },
 
