@@ -30,6 +30,21 @@ module.exports = function (grunt) {
         config: config,
 
         /**
+         * grunt-babel
+         * https://github.com/babel/grunt-babel
+         */
+        babel: {
+            options: {
+                sourceMap: true
+            },
+            all: {
+                files: {
+                    '<%= config.tmp %>/scripts/master.js': '<%= config.tmp %>/scripts/master.js'
+                }
+            }
+        },
+
+        /**
          * grunt-bower-concat
          * https://github.com/sapegin/grunt-bower-concat
          */
@@ -70,6 +85,26 @@ module.exports = function (grunt) {
         },
 
         /**
+         * grunt-contrib-concat
+         * https://github.com/gruntjs/grunt-contrib-concat
+         */
+        concat: {
+            options: {},
+            libs: {
+
+            },
+            custom: {
+                files: {
+                    '<%= config.tmp %>/scripts/master.js': [
+                        '<%= config.app %>/scripts/{,*/}*.js',
+                        '!<%= config.app %>/scripts/libs/*',
+                        '!<%= config.app %>/scripts/compiled/*'
+                    ]
+                }
+            }
+        },
+
+        /**
          * grunt-contrib-connect
          * https://github.com/gruntjs/grunt-contrib-connect
          */
@@ -81,7 +116,7 @@ module.exports = function (grunt) {
             },
             server: {
                 options: {
-                    // serve files from both the app and dev folders
+                    // serve files from both the app and tmp folders
                     base: ['<%= config.app %>', '<%= config.tmp %>'],
                     open: true
                 }
@@ -237,7 +272,7 @@ module.exports = function (grunt) {
                     '!<%= config.app %>/scripts/libs/*',
                     '!<%= config.app %>/scripts/compiled/*'
                 ],
-                tasks: ['eslint', 'uglify:dev']
+                tasks: ['eslint', 'concat', 'babel']
             },
             html: {
                 files: [
@@ -247,23 +282,7 @@ module.exports = function (grunt) {
         }
     });
 
-    /**
-     * ***** dev task *****
-     *
-     * clean tmp and dev folders
-     * css
-     *     - run globbing on main scss files
-     *     - compile sass files
-     *     - run through autoprefixer
-     *     - generate sourcemap
-     * javascript
-     *     - move vendor files from bower to tmp/vendor folder
-     *     - concat files vendor files
-     *     - concate project specific files
-     *     - generate sourcemap
-     * open site in web browser
-     * start watch task
-     */
+    /***** dev task *****/
     grunt.registerTask('dev', [
         'clean:dev',
         'sass_globbing',
@@ -272,7 +291,9 @@ module.exports = function (grunt) {
         'eslint',
         'bower_concat:preloads',
         'bower_concat:libs',
-        'uglify:dev',
+        // 'uglify:dev',
+        'concat',
+        'babel',
         'connect:server',
         'watch'
     ]);
