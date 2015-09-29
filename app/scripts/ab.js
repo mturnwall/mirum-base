@@ -2,18 +2,21 @@ let message = 'Hello World';
 let foo = message;
 const SET = 1111;
 
+console.log(foo);
+
 // TODO
 (() => {
     return {
-        say: alert(message + foo)
+        say: message + foo,
     };
 })();
 
-// FIXME something is not right here
-function function_name (x)  {
+function function_name (x) {
+    var hello;
     x.y = 123;
     if (typeof x === 'undefined') {
-        return x;
+        var world = x;
+        return hello +  world;
     } else {
         return false;
     }
