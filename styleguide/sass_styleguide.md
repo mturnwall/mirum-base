@@ -26,6 +26,8 @@
     - [CSS](#user-content-css)
     - [Sass](#user-content-sass)
 
+## Description
+
 The purpose of this document is to establish a set of guidelines and best practices for writing Sass on Mirum projects. The main goal is to establish consistency across all Mirum projects. This is not a CSS style guide and only deals with Sass specific ideas and content.
 
 The document is not intended to be a training manual for using Sass. You won't find instructions on how to write Sass. What you will find are rules on how your Sass should be formatted and best practices.
@@ -47,7 +49,7 @@ Sass can be written in two different formats:
 Here are examples of the two different syntaxes.
 
 ```sass
-// Sass
+// Sass style
 .my-element
     color= !primary-color
     width= 100%
@@ -56,7 +58,7 @@ Here are examples of the two different syntaxes.
 .my-other-element
     +border-radius(5px)
 
-// SCSS
+// SCSS style
 .my-element {
     color: $primary-color;
     width: 100%;
@@ -68,7 +70,7 @@ Here are examples of the two different syntaxes.
 }
 ```
 
-Mirum uses SCSS because it more closely resembles how CSS is written. This makes it easier for new developers to pick it up. When you see Sass mentioned with are talking about the Sass pre-processor itself, not the indented syntax.
+Mirum uses SCSS because it more closely resembles how CSS is written. This makes it easier for new developers to pick it up. When you see Sass mentioned in this document we are talking about the Sass pre-processor itself, not the indented syntax.
 
 ## Syntax and Formatting
 
@@ -89,7 +91,7 @@ A ruleset in Sass is the same as CSS. It's consists of the selector and the decl
 * Each CSS declaration should be on a newline
 * CSS properties should have a space after the colon.
 * Each CSS declaration pair should end with a semicolon
-* The closing bracke '}' should be on it's own line
+* The closing bracket '}' should be on it's own line
 
 ```sass
 // bad
@@ -108,7 +110,7 @@ A ruleset in Sass is the same as CSS. It's consists of the selector and the decl
 }
 ```
 
-Any local variables should be at the beginning of the ruleset before an extends, includes, or declrations. The local variable should also be followed by a blank line.
+Any local variables should be at the beginning of the ruleset before any extends, includes, or declrations. The local variable should also be followed by a blank line.
 
 ```sass
 .my-class {
