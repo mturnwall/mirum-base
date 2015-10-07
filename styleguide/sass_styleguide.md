@@ -1,4 +1,4 @@
-# Mirum Sass Style Guide (DRAFT)
+# Mirum Sass Style Guide (DRAFT) v0.1
 
 ## Table of Contents
 
@@ -15,10 +15,18 @@
     * [Namespace]()
 * [Structure]()
 * [Variables]()
+    - [!default]()
+    - [!global]()
 * [Mixins]()
+    - [No Arguments]()
+    - [With Arguments]()
+    - [Mixins in Mixins]()
+    - [@content directive]()
 * [Commenting]()
+    - [CSS]()
+    - [Sass]()
 
-The purpose of this document is to establish a set of guidelines for writing Sass on Mirum projects. The main goal is to establish consistency across all Mirum projects. This is not a CSS style guide and only deals with Sass specific ideas and content.
+The purpose of this document is to establish a set of guidelines and best practices for writing Sass on Mirum projects. The main goal is to establish consistency across all Mirum projects. This is not a CSS style guide and only deals with Sass specific ideas and content.
 
 The document is not intended to be a training manual for using Sass. You won't find instructions on how to write Sass. What you will find are rules on how your Sass should be formatted and best practices.
 
@@ -221,6 +229,197 @@ Constants go against this format though. They need to stand out so that you can 
 $Z_INDEXES: (1, 10, 100);
 $DISPLAY_OPTIONS: ('block', 'inline', 'table');
 ```
+
+### BEM
+
+When naming selectors you should follow the [Block, Element, Modifer (BEM) pattern](http://csswizardry.com/2013/01/mindbemding-getting-your-head-round-bem-syntax/). This will help you have low specificity in your compiled CSS.
+
+BEM follows these simple rules.
+
+* Blocks are your modules and therefore follow the same naming rules as all other selectors
+* Elements are prefixed with two underscores
+* Modifers are prefixed with two hypens
+
+Elements and Modifers should be nested inside the Block. You should use the parent selector `&` to build the selectors for the Elements and Modifers.
+
+There are times when you need modify the styling of an Element differently when you are using a Modifier on a Block. If you just use the `&` selector in this instance you'll end up with a selector that isn't what you need. An example is if you have a Block `.my-bem` and the Modifier is `--modifier` you'll have a parent selector of `.my-bem--modifier`. So when you place `&__element` underneath your Modifier the `&` selector will append `.my-bem--modifier` to your element and you'll have `.my-bem--modifier__element` which is not the selector you want. To get around this you want to assign your block to a local variable, `$block`, and use [SASS interpolation](http://sass-lang.com/documentation/file.SASS_REFERENCE.html#interpolation_) to construct your selector.
+
+The following example demonstrates how you can use BEM with Sass.
+
+```sass
+// Example
+.my-bem {
+    $block: 'my-bem';
+
+    color: red;
+
+    &--modifer {
+        color: purple;
+
+        .#{$block}__element {
+            width: 25%;
+        }
+    }
+    &__element {
+        width: 50%;
+    }
+}
+
+// output
+.my-bem {
+    color: red;
+}
+.my-bem--modifer {
+    color: purple;
+}
+.my-bem--modifer .my-bem__element {
+    width: 25%;
+}
+.my-bem__element {
+    width: 50%;
+}
+```
+
+### Namespacing
+
+TBD
+
+## Structure
+
+Talk about folder and file structure such as using a manifest file and a config file.
+
+## Variables
+
+If you find yourself typing the same value over and over again it might be a good idea to abstract that value into a variable. At the same time though you don't need a variable for everything. You'll end up with a naming and maintenance nightmare.
+
+### !default
+
+If you are creating Sass that will be used across different projects or different sites for the same projects any configuration variables should have the `!default` flag added. Here is the definition of `!default` from the Sass documentation
+
+> You can assign to variables if they aren't already assigned by adding the !default flag to the end of the value. This means that if the variable has already been assigned to, it won't be re-assigned, but if it doesn't have a value yet, it will be given one.
+
+```sass
+$color-bg: #333;
+$color-bg: #000 !default;
+$color-text: #fff !default;
+
+#main {
+  background-color: $color-bg;
+  color: $color-text;
+}
+
+// Compiled, notice the value of $content #333 even though it set as the value first
+#main {
+    background-color: #333;
+    color: #fff;
+}
+``` 
+
+### !global
+
+The `!global` flag should only be used when overriding a global variable from local scope.
+
+## Mixins
+
+Mixins act like an abstraction for your CSS. Here is the definition of mixins from the Sass documentation.
+
+> Mixins allow you to define styles that can be re-used throughout the stylesheet without needing to resort to non-semantic classes like .float-left. Mixins can also contain full CSS rules, and anything else allowed elsewhere in a Sass document. They can even take arguments which allows you to produce a wide variety of styles with very few mixins.
+
+This is the key to keeping your Sass [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself) and reusable. With that being said you need to be careful with creating mixins. The idea of not over-engeering your javascript functions is also applied to your mixins. Remember the idea is to keep your mixins simple. They should do one thing well.
+
+If you find yourself writing the same CSS properties over and over again for a specific reason they should be abstracted into a mixin.
+
+There are two types of mixins, with or without arguments.
+
+### No Arguments
+
+Mixins do not always have to have mixins. This usually happens when you have CSS properties that don't change or have not overwritable default values. When including these mixins in your code you should omit the `()`. The keyword `@include` already indicates that the line is a mixin call.
+
+```sass
+@mixin position-it {
+    position: absolute;
+    top: 0;
+}
+// Bad
+.my-classA {
+    @include position-it();
+}
+// Good
+.my-classA {
+    @include position-it;
+}
+```
+
+### With Arguments
+
+Mixins use arguments as a way for you to provide CSS property values that can be changed. It's best to provide default values for your arguments.
+
+```sass
+@mixin my-mixin($font: 'foo', $color: #fff) {
+    font-family: $foo;
+    color: $color;
+}
+// use defaults
+.my-classA {
+    @include my-mixin();
+}
+// override defaults
+.my-classB {
+    @include my-mixin($font: 'bar', $color: #000);
+}
+```
+
+### Mixin in Mixins
+
+Sass allows you to include mixins inside other mixins. Be very careful with this though because you are creating dependencies. If you do this be sure to list the dependencies in your documenting comments. This will help future developers when they have to modify a mixin that is included in other mixins.
+
+### @content directive
+
+TBD
+
+## Commenting
+
+Just as in any programming language comments help you to convey information to other developers. You want to strike a balance between terse and verbose. Although your code should be self-documenting, sometimes you need comments to help fill in the blanks.
+
+### CSS
+
+Regular CSS rulesets should be commented using regular CSS type comments `/* Comment */`. There is no need to comment every CSS ruleset though. Use comments to convey information when the purpose of the ruleset isn't obvious from reading the code. Some scenarios would be:
+
+* To state the purpose of a file.
+* The goal behind a ruleset.
+* Explain Using unorthodox CSS to compensate for a browser quirk.
+* The reason why you did something in particular.
+
+```css
+/**
+ * This forces IE to clear each row in the gallery
+ */
+.gallery__row {
+    clear: left;
+}
+```
+
+### Sass
+
+When commenting your Sass follow the [Sassdoc](http://sassdoc.com/) syntax. Sassdoc comments are JSDoc-like comments for Sass. It helps force a common comment style for your Sass code. It also can be used to generate a HTML version of your Sass API for other developers to follow.
+
+Any variable, placeholder, mixin, or function should be documented using the Sassdocs style. At the bare minimum you should have a description for Sass code. Mixins and functions must have their arguments documented.
+
+```sass
+/// Base font size for the page. Assign to the <html> element
+/// @group fonts
+$font-size-base: 14;
+
+/// Writes code for the font-family and the color of the text
+/// @param {String} $font -  font-family stack to use
+/// @param {Hex Number} $color - the color the text will be
+@mixin my-mixin($font: 'foo', $color: #fff) {
+    font-family: $foo;
+    color: $color;
+}
+```
+
+Here is an [article](http://www.sitepoint.com/sassdoc-2-shiny-streamy-octopus/) from the creator, Hugo Giraudel, on using Sassdoc.
 
 
 
