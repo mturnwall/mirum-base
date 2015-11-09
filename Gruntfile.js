@@ -30,78 +30,11 @@ module.exports = function (grunt) {
         config: config,
 
         /**
-         * grunt-babel
-         * https://github.com/babel/grunt-babel
-         */
-        babel: {
-            options: {
-                sourceMap: true
-            },
-            all: {
-                files: {
-                    '<%= config.tmp %>/scripts/master.js': '<%= config.tmp %>/scripts/master.js'
-                }
-            }
-        },
-
-        /**
-         * grunt-bower-concat
-         * https://github.com/sapegin/grunt-bower-concat
-         */
-        bower_concat: {
-            preloads: {
-                dest: '<%= config.tmp %>/scripts/libs/preload.js',
-                include: ['modernizr']
-            },
-            libs: {
-                dest: '<%= config.tmp %>/scripts/libs/vendors.js',
-                // array of libraries to not include
-                exclude: ['modernizr']
-            }
-        },
-
-        /**
-         * grunt-bowercopy
-         * https://github.com/timmywil/grunt-bowercopy
-         */
-        bowercopy: {
-            libs: {
-                options: {
-                    destPrefix: '<%= config.tmp %>/scripts/libs'
-                },
-                files: {
-                    'jquery.js': 'jquery/dist/jquery.min.js',
-                    'ember.js': 'ember/ember.js'
-                }
-            }
-        },
-
-        /**
          * grunt-contrib-clean
          * https://github.com/gruntjs/grunt-contrib-clean
          */
         clean: {
-            dev: ['<%= config.tmp %>', '<%= config.dev %>']
-        },
-
-        /**
-         * grunt-contrib-concat
-         * https://github.com/gruntjs/grunt-contrib-concat
-         */
-        concat: {
-            options: {},
-            libs: {
-
-            },
-            custom: {
-                files: {
-                    '<%= config.tmp %>/scripts/master.js': [
-                        '<%= config.app %>/scripts/{,*/}*.js',
-                        '!<%= config.app %>/scripts/libs/*',
-                        '!<%= config.app %>/scripts/compiled/*'
-                    ]
-                }
-            }
+            dev: ['<%= config.tmp %>', '<%= config.dev %>', '<%= config.dist %>']
         },
 
         /**
@@ -110,35 +43,16 @@ module.exports = function (grunt) {
          */
         connect: {
             options: {
-                port: 9001,
+                port: 9002,
                 hostname: '0.0.0.0',
-                livereload: true
+                livereload: true,
+                debug: true
             },
             server: {
                 options: {
-                    // serve files from both the app and tmp folders
-                    base: ['<%= config.app %>', '<%= config.tmp %>'],
+                    base: ['<%= config.app %>', '<%= config.dev %>'],
                     open: true
                 }
-            }
-        },
-
-        /**
-         * grunt-concurrent
-         * https://github.com/sindresorhus/grunt-concurrent
-         */
-        concurrent: {
-            dev: {},
-            dist: {}
-        },
-
-        /**
-         * grunt-contrib-copy
-         */
-        copy: {
-            dev: {
-                dest: '<%= config.dev %>/index.html',
-                src: '<%= config.app %>/index.html'
             }
         },
 
@@ -155,79 +69,6 @@ module.exports = function (grunt) {
         },
 
         /**
-         * grunt-open
-         * https://github.com/jsoverson/grunt-open
-         */
-        // open: {
-        //     server: {
-        //         path: 'http://localhost:<%= connect.server.options.port %>'
-        //     }
-        // },
-
-        /**
-         * grunt-postcss
-         * https://github.com/nDmitry/grunt-postcss
-         */
-        postcss: {
-            dev: {
-                options: {
-                    map: {
-                        inline: false
-                    },
-                    processors: [
-                        require('autoprefixer-core')({browsers: ['last 2 version', 'ie 9']}),
-                        require('cssnano')
-                    ]
-                },
-                files: [{
-                    expand: true,
-                    cwd: '<%= config.tmp %>/css',
-                    src: ['*.css'],
-                    dest: '<%= config.tmp %>/css'
-                }]
-            }
-        },
-
-        /**
-         * grunt-processhtml
-         * https://github.com/dciccale/grunt-processhtml
-         */
-        processhtml: {
-
-        },
-
-        /**
-         * grunt-sass
-         * https://github.com/sindresorhus/grunt-sass
-         */
-        sass: {
-            options: {
-                sourceMap: true
-            },
-            dev: {
-                files: [{
-                    expand: true,
-                    cwd: '<%= config.app %>/css/sass/',
-                    src: ['*.scss'],
-                    dest: '<%= config.tmp %>/css/',
-                    ext: '.css'
-                }]
-            }
-        },
-
-        /**
-         * grunt-sass-globbing
-         * https://github.com/DennisBecker/grunt-sass-globbing
-         */
-        sass_globbing: {
-            all: {
-                files: {
-                    '<%= config.app %>/css/sass/_modulesMap.scss': '<%= config.app %>/css/sass/modules/**/*'
-                }
-            }
-        },
-
-        /**
          * grunt-contrib-uflify
          * https://github.com/gruntjs/grunt-contrib-uglify
          */
@@ -241,13 +82,12 @@ module.exports = function (grunt) {
                     mangle: false,
                     compress: false,
                     sourceMap: true,
+                    // sourceMapIn: '<%= config.tmp %>/scripts/master.js.map',
                     screwIE8: true
                 },
                 files: {
-                    '<%= config.tmp %>/scripts/master.js': [
-                        '<%= config.app %>/scripts/{,*/}*.js',
-                        '!<%= config.app %>/scripts/libs/*',
-                        '!<%= config.app %>/scripts/compiled/*'
+                    '<%= config.dev %>/scripts/master.js': [
+                        '<%= config.tmp %>/scripts/master.js'
                     ]
                 }
             },
@@ -264,7 +104,7 @@ module.exports = function (grunt) {
             },
             sass: {
                 files: ['<%= config.app %>/css/sass/**/*.scss'],
-                tasks: ['sass:dev', 'postcss:dev']
+                tasks: ['sass:dev', 'replace:sourceMaps', 'postcss:dev']
             },
             scripts: {
                 files: [
@@ -279,24 +119,58 @@ module.exports = function (grunt) {
                     '<%= config.app %>/*.html'
                 ]
             }
+        },
+
+        /**
+         * grunt-webpack
+         * https://github.com/webpack/grunt-webpack
+         */
+        webpack: {
+            options: {
+                entry: {
+                    app: './<%= config.app %>/scripts/app.js'
+                },
+                output: {
+                    path: '<%= config.tmp %>/scripts/',
+                    filename: 'master.js'
+                },
+                module: {
+                    loaders: [{
+                        test: /\.js$/,
+                        exclude: /(node_modules|bower_components)/,
+                        loader: 'babel',
+                        query: {
+                            cacheDirectory: true,
+                            presets: ['es2015']
+                        }
+                    }]
+                }
+            },
+            'build-dev': {
+                progress: true,
+                debug: true
+            }
         }
+
+    });
+    grunt.registerTask('js', 'Compile javascript', function js(target) {
+        grunt.task.run([
+            'eslint',
+            'webpack:build-dev',
+            'uglify:dev'
+        ]);
     });
 
     /***** dev task *****/
-    grunt.registerTask('dev', [
-        'clean:dev',
-        'sass_globbing',
-        'sass:dev',
-        'postcss:dev',
-        'eslint',
-        'bower_concat:preloads',
-        'bower_concat:libs',
-        // 'uglify:dev',
-        'concat',
-        'babel',
-        'connect:server',
-        'watch'
-    ]);
+    grunt.registerTask('dev', 'Task for development', function () {
+        grunt.task.run([
+            'clean:dev',
+            // 'css:dev',
+            'js:dev',
+            'connect:server',
+            'watch'
+        ]);
+    });
 
     grunt.registerTask('default', []);
 };
