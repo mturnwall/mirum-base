@@ -39,7 +39,7 @@ module.exports = function (grunt) {
             },
             all: {
                 files: {
-                    '<%= config.tmp %>/scripts/master.js': '<%= config.tmp %>/scripts/master.js'
+                    '<%= config.tmp %>/scripts/<%= pkg.name %>.js': '<%= config.tmp %>/scripts/<%= pkg.name %>.js'
                 }
             }
         },
@@ -91,11 +91,18 @@ module.exports = function (grunt) {
         concat: {
             options: {},
             libs: {
-
+                files: {
+                    '<%= config.tmp %>/scripts/vendors.js': [
+                        '<%= config.app %>/scripts/libs/*'
+                    ]
+                }
             },
             custom: {
+                options: {
+                    sourceMap: true
+                },
                 files: {
-                    '<%= config.tmp %>/scripts/master.js': [
+                    '<%= config.tmp %>/scripts/<%= pkg.name %>.js': [
                         '<%= config.app %>/scripts/{,*/}*.js',
                         '!<%= config.app %>/scripts/libs/*',
                         '!<%= config.app %>/scripts/compiled/*'
@@ -197,6 +204,22 @@ module.exports = function (grunt) {
         },
 
         /**
+         * grunt-text-replace
+         * https://github.com/yoniholmes/grunt-text-replace
+         */
+        replace: {
+            // Fixes paths in the source maps so they actually work
+            sourceMaps: {
+                src: ['<%= config.tmp %>/scripts/*.map', '<%= config.tmp %>/css/*.map'],
+                overwrite: true,
+                replacements: [{
+                    from: /..\/..\/(app|.tmp)/g,
+                    to: ''
+                }]
+            }
+        },
+
+        /**
          * grunt-sass
          * https://github.com/sindresorhus/grunt-sass
          */
@@ -241,10 +264,11 @@ module.exports = function (grunt) {
                     mangle: false,
                     compress: false,
                     sourceMap: true,
+                    sourceMapIn: '<%= config.tmp %>/scripts/<%= pkg.name %>.js.map',
                     screwIE8: true
                 },
                 files: {
-                    '<%= config.tmp %>/scripts/master.js': [
+                    '<%= config.dev %>/scripts/<%= pkg.name %>.js': [
                         '<%= config.app %>/scripts/{,*/}*.js',
                         '!<%= config.app %>/scripts/libs/*',
                         '!<%= config.app %>/scripts/compiled/*'
@@ -282,21 +306,49 @@ module.exports = function (grunt) {
         }
     });
 
+    grunt.registerTask('css', 'Compile Sass', function js(target) {
+        grunt.task.run([
+            'sass_globbing',
+            'sass:' + target,
+            'postcss:dev'
+        ]);
+    });
+
+    grunt.registerTask('js', 'Compile javascript', function js(target) {
+        grunt.task.run([
+            'eslint',
+            'concat',
+            'uglify:' + target,
+            'replace:sourceMaps'
+        ]);
+    });
+
     /***** dev task *****/
-    grunt.registerTask('dev', [
-        'clean:dev',
-        'sass_globbing',
-        'sass:dev',
-        'postcss:dev',
-        'eslint',
-        'bower_concat:preloads',
-        'bower_concat:libs',
-        // 'uglify:dev',
-        'concat',
-        'babel',
-        'connect:server',
-        'watch'
-    ]);
+    grunt.registerTask('dev', 'Task for development', function () {
+        grunt.task.run([
+            'clean:dev',
+            'css:dev',
+            'js:dev',
+            'connect:server',
+            'watch'
+        ]);
+    });
+
+    // grunt.registerTask('dev', [
+    //     'clean:dev',
+    //     'sass_globbing',
+    //     'sass:dev',
+    //     'postcss:dev',
+    //     // 'eslint',
+    //     // 'bower_concat:preloads',
+    //     // 'bower_concat:libs',
+    //     'concat',
+    //     // 'babel',
+    //     'uglify:dev',
+    //     'replace:sourceMaps',
+    //     'connect:server',
+    //     'watch'
+    // ]);
 
     grunt.registerTask('default', []);
 };
