@@ -1,6 +1,6 @@
-require('./ab.js');
-require('./components/my-component.js');
+import MyComponent from './components/my-component';
 
 let foo = 'bar';
-
-console.log(message);
+let test = new MyComponent();
+console.log(foo);
+console.log(test.sayHello());

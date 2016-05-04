@@ -1,0 +1,29 @@
+{
+    "source": {
+        "include": ["app/scripts/"],
+        "exclude": ["app/scripts/libs", "app/scripts/preload"],
+        "includePattern": ".+\\.js(doc)?$"
+    },
+    "opts": {
+        "private": true,
+//        "template": "node_modules/ink-docstrap/template",
+        "readme": "README.md",
+        "package": "package.json"
+    },
+    "templates": {
+        "cleverLinks": false,
+        "monospaceLinks": false,
+        "default": {
+            "outputSourceFiles": true
+        },
+        "systemName"      : "",
+        "footer"          : "",
+        "copyright"       : "",
+        "navType"         : "vertical",
+//        "theme"           : "cerulean",
+        "linenums"        : true,
+        "collapseSymbols" : false,
+        "inverseNav"      : true,
+        "syntaxTheme": "dark"
+    }
+}

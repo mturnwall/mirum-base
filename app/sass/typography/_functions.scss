@@ -1,0 +1,17 @@
+/// Create rem or percentage font size relative to another font size.
+/// This is generally a base font size for a page
+///
+/// @param  {Number} $actual - the actual font size the text should be
+/// @param  {Number} $relative - size the rem should be relative to
+/// @param  {String} $unitType - the unit the font should be, usually either rem or %
+///
+/// @return {String}     Generated font size
+/// @group fonts
+/// @author Michael Turnwall
+@function get-relative-font-size($actual, $relative, $unitType) {
+    @if $unitType == 'rem' {
+        @return #{($actual / $font-size-base)}rem;
+    } @else {
+        @return ceil(percentage($actual / $relative));
+    }
+}

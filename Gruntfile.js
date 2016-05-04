@@ -30,11 +30,80 @@ module.exports = function (grunt) {
         config: config,
 
         /**
+         * grunt-assemble
+         * https://github.com/assemble/grunt-assemble
+         */
+        assemble: {
+            options: {
+                layoutdir: '<%= config.app %>/templates/layouts',
+                partials: '<%= config.app %>/templates/partials/**/*.hbs',
+                flatten: true
+            },
+            dev: {
+                options: {
+                    layout: 'default.hbs'
+                },
+                files: {
+                    '<%= config.dev %>/': ['<%= config.app %>/templates/pages/*.hbs']
+                }
+            },
+            dist: {
+                options: {
+                    layout: 'default.hbs'
+                },
+                files: {
+                    '<%= config.dist %>/': ['<%= config.app %>/templates/pages/*.hbs']
+                }
+            }
+        },
+
+        /**
          * grunt-contrib-clean
          * https://github.com/gruntjs/grunt-contrib-clean
          */
         clean: {
-            dev: ['<%= config.tmp %>', '<%= config.dev %>', '<%= config.dist %>']
+            dev: ['<%= config.tmp %>', '<%= config.dev %>'],
+            dist: ['<%= config.dist %>']
+        },
+
+        /**
+         * grunt-contrib-concat
+         * https://github.com/gruntjs/grunt-contrib-concat
+         */
+        concat: {
+            options: {},
+            custom: {
+                options: {
+                    sourceMap: true
+                },
+                files: {
+                    '<%= config.dist %>/includes/jsbin/<%= pkg.name %>.min.js': [
+                        '<%= config.app %>/scripts/{,*/}*.js',
+                        '!<%= config.app %>/scripts/libs/*',
+                        '!<%= config.app %>/scripts/compiled/*'
+                    ]
+                }
+            },
+            dev: {
+                files: {
+                    '<%= config.dev %>/includes/jsbin/vendors.js': [
+                        '<%= config.app %>/scripts/libs/*.js'
+                    ],
+                    '<%= config.dev %>/includes/jsbin/preload.js': [
+                        '<%= config.app %>/scripts/preload/*.js'
+                    ]
+                }
+            },
+            dist: {
+                files: {
+                    '<%= config.dist %>/includes/jsbin/vendors.js': [
+                        '<%= config.app %>/scripts/libs/*'
+                    ],
+                    '<%= config.dist %>/includes/jsbin/preload.js': [
+                        '<%= config.app %>/scripts/preload/*.js'
+                    ]
+                }
+            }
         },
 
         /**
@@ -50,9 +119,23 @@ module.exports = function (grunt) {
             },
             server: {
                 options: {
-                    base: ['<%= config.app %>', '<%= config.dev %>'],
+                    base: ['<%= config.dev %>', '<%= config.app %>'],
                     open: true
                 }
+            }
+        },
+
+        /**
+         * grunt-contrib-copy
+         */
+        copy: {
+            dist: {
+                files: [{
+                    expand: true,
+                    cwd: '<%= config.app %>/fonts',
+                    src: ['*'],
+                    dest: '<%= config.dist %>/fonts'
+                }]
             }
         },
 
@@ -69,29 +152,175 @@ module.exports = function (grunt) {
         },
 
         /**
+         * grunt-contrib-imagemin
+         * https://github.com/gruntjs/grunt-contrib-imagemin
+         */
+        imagemin: {
+            dist: {
+                files: [{
+                    expand: true,
+                    cwd: '<%= config.app %>/media',
+                    src: ['**/*.{png,jpg,gif}'],
+                    dest: '<%= config.dist %>/media'
+                }]
+            }
+        },
+
+        /**
+         * grunt-jsdoc
+         * https://github.com/krampstudio/grunt-jsdoc
+         */
+        jsdoc: {
+            docs: {
+                options: {
+                    configure: './conf.json',
+                    private: true
+                },
+                src: [
+                    '<%= config.app %>/scripts/{,*/}*.js',
+                    '!<%= config.app %>/scripts/libs/*',
+                    '!<%= config.app %>/scripts/preload/*',
+                    '!<%= config.app %>/scripts/compiled/*'
+                ]
+            }
+        },
+
+        /**
+         * grunt-postcss
+         * https://github.com/nDmitry/grunt-postcss
+         */
+        postcss: {
+            dev: {
+                options: {
+                    map: {
+                        inline: false
+                    },
+                    processors: [
+                        require('autoprefixer-core')({browsers: ['last 2 version', 'ie 9']})
+                    ]
+                },
+                files: [{
+                    expand: true,
+                    cwd: '<%= config.dev %>/css',
+                    src: ['*.css'],
+                    dest: '<%= config.dev %>/css'
+                }]
+            },
+            dist: {
+                options: {
+                    map: {
+                        inline: false
+                    },
+                    processors: [
+                        require('autoprefixer-core')({browsers: ['last 2 version', 'ie 9']}),
+                        require('cssnano')
+                    ]
+                },
+                files: [{
+                    expand: true,
+                    cwd: '<%= config.dist %>/css',
+                    src: ['*.css'],
+                    dest: '<%= config.dist %>/css'
+                }]
+            }
+        },
+
+        /**
+         * grunt-text-replace
+         * https://github.com/yoniholmes/grunt-text-replace
+         */
+        replace: {
+            // Fixes paths in the source maps so they actually work
+            sourceMaps: {
+                src: ['<%= config.dev %>/scripts/*.map', '<%= config.dev %>/css/*.map'],
+                overwrite: true,
+                replacements: [{
+                    from: /..\/..\/(app|.tmp)/g,
+                    to: ''
+                }]
+            }
+        },
+
+        /**
+         * grunt-sass
+         * https://github.com/sindresorhus/grunt-sass
+         */
+        sass: {
+            dev: {
+                options: {
+                    sourceMap: true
+                },
+                files: [{
+                    expand: true,
+                    cwd: '<%= config.app %>/sass/',
+                    src: ['*.scss'],
+                    dest: '<%= config.dev %>/css/',
+                    ext: '.css'
+                }]
+            },
+            dist: {
+                files: [{
+                    expand: true,
+                    cwd: '<%= config.app %>/sass/',
+                    src: ['*.scss'],
+                    dest: '<%= config.dist %>/css/',
+                    ext: '.css'
+                }]
+            }
+        },
+
+        /**
+         * grunt-sass
+         * https://github.com/sindresorhus/grunt-sass
+         */
+        sassdoc: {
+            all: {
+                options: {
+                    dest: './sassdocs',
+                    descriptionPath: './README.md',
+                    groups: {
+                        fonts: 'Fonts',
+                        colors: 'Colors',
+                        buttons: 'Buttons',
+                        ui: 'UI'
+                    },
+                    theme: 'flippant'
+                },
+                src: '<%= config.app %>/sass/'
+            }
+        },
+
+        /**
+         * grunt-sass-globbing
+         * https://github.com/DennisBecker/grunt-sass-globbing
+         */
+        sass_globbing: {
+            all: {
+                files: {
+                    '<%= config.app %>/sass/_modulesMap.scss': '<%= config.app %>/css/sass/modules/**/*'
+                }
+            }
+        },
+
+        /**
          * grunt-contrib-uflify
          * https://github.com/gruntjs/grunt-contrib-uglify
          */
         uglify: {
-            options: {
-                screwIE8: true
-            },
-            dev: {
+            dist: {
                 options: {
-                    beautify: true,
-                    mangle: false,
-                    compress: false,
-                    sourceMap: true,
-                    // sourceMapIn: '<%= config.tmp %>/scripts/master.js.map',
-                    screwIE8: true
+                    preserveComments: 'some',
+                    compress: {
+                        drop_debugger: true,
+                        drop_console: true
+                    }
                 },
                 files: {
-                    '<%= config.dev %>/scripts/master.js': [
-                        '<%= config.tmp %>/scripts/master.js'
+                    '<%= config.dist %>/scripts/<%= pkg.name %>.min.js': [
+                        '<%= config.dist %>/scripts/<%= pkg.name %>.js'
                     ]
                 }
-            },
-            dist: {}
+            }
         },
 
         /**
@@ -112,12 +341,13 @@ module.exports = function (grunt) {
                     '!<%= config.app %>/scripts/libs/*',
                     '!<%= config.app %>/scripts/compiled/*'
                 ],
-                tasks: ['eslint', 'concat', 'babel']
+                tasks: ['eslint', 'webpack:dev']
             },
-            html: {
+            assemble: {
                 files: [
-                    '<%= config.app %>/*.html'
-                ]
+                    '<%= config.app %>/templates/**/*.hbs'
+                ],
+                tasks: ['assemble']
             }
         },
 
@@ -129,10 +359,6 @@ module.exports = function (grunt) {
             options: {
                 entry: {
                     app: './<%= config.app %>/scripts/app.js'
-                },
-                output: {
-                    path: '<%= config.tmp %>/scripts/',
-                    filename: 'master.js'
                 },
                 module: {
                     loaders: [{
@@ -146,29 +372,72 @@ module.exports = function (grunt) {
                     }]
                 }
             },
-            'build-dev': {
+            dev: {
+                devtool: 'source-map',
+                output: {
+                    path: '<%= config.dev %>/scripts/',
+                    filename: '<%= pkg.name %>.js'
+                },
                 progress: true,
                 debug: true
+            },
+            dist: {
+                output: {
+                    path: '<%= config.dist %>/scripts/',
+                    filename: '<%= pkg.name %>.js'
+                }
             }
         }
 
     });
+
+    grunt.registerTask('css', 'Compile Sass', function (target) {
+        grunt.task.run([
+            'sass_globbing',
+            'sass:' + target,
+            'postcss:' + target
+        ]);
+        if (target === 'dev') {
+            grunt.task.run([
+                'replace:sourceMaps'
+            ]);
+        }
+    });
+
     grunt.registerTask('js', 'Compile javascript', function js(target) {
         grunt.task.run([
             'eslint',
-            'webpack:build-dev',
-            'uglify:dev'
+            'webpack:' + target
         ]);
+        if (target === 'dist') {
+            grunt.task.run([
+                'uglify:dist'
+            ]);
+        }
     });
 
     /***** dev task *****/
     grunt.registerTask('dev', 'Task for development', function () {
         grunt.task.run([
             'clean:dev',
-            // 'css:dev',
+            'assemble',
+            'css:dev',
             'js:dev',
+            'assemble:dev',
             'connect:server',
             'watch'
+        ]);
+    });
+
+    /***** dev task *****/
+    grunt.registerTask('build', 'Task for building release', function () {
+        grunt.task.run([
+            'clean:dist',
+            'css:dist',
+            'js:dist',
+            'assemble:dist',
+            'copy:dist',
+            'imagemin'
         ]);
     });
 

@@ -1,0 +1,37 @@
+/// build a button based on a theme from
+/// $button-themes map
+/// @param $name - button name
+/// @param $theme [primary] - the theme to use from the map
+@mixin make-button($name, $theme: 'primary') {
+    $values: map-get($button-themes, $theme);
+
+    //
+    // This is just an example of the mixin and how
+    // to use the button theme map.
+    // Place your own code here.
+    //
+    @include font-size(19);
+    font-weight: 500;
+    line-height: 1;
+    background-color: map-get($values, bgColor);
+    color: map-get($values, color);
+    display: inline-block;
+    text-decoration: none;
+    padding: 12px 30px;
+    text-transform: lowercase;
+    transition: all 500ms $easeOutCubic;
+
+    &:hover {
+        text-decoration: none;
+    }
+}
+
+/// Reset default <button> styles to make it more like a text link
+@mixin reset-button() {
+    font-family: $font-family-sans;
+    background-color: transparent;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    outline: none;
+}

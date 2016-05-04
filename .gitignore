@@ -27,6 +27,7 @@ node_modules
 bower_components
 .tmp
 dev
+dist
 
 # Compiled source #
 ###################

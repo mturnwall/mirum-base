@@ -1,0 +1,76 @@
+////
+/// Forms Placeholders
+/// @group forms
+///
+
+/// Even though a design might have a label for
+/// a form control you still need to include a label.
+/// Use this to hide the label.
+@mixin hidden-label() {
+    font-size: 1px;
+    visibility: hidden;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+/// Hide a form control so that a styled version
+/// can be placed on top of it. For example, when
+/// using a js library to style a checkbox.
+/// @param $height [100%] - the height of the field
+/// @content
+/// @author Michael Turnwall
+@mixin hiddenInput($height: 100%) {
+    background: none;
+    border: 0;
+    opacity: 0;
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: $height;
+    @content;
+}
+
+/// Style the placeholder attribute of `input[type="text"]` fields.
+/// This mixin can be applied globally or on specific text fields
+///
+/// @example
+///  // all input and textareas
+///  @include inputPlaceholder() {
+///      color: red;
+///      font-weight: 400;
+///      padding-top: 5px;
+///   }
+///  // just textareas
+///  textarea {
+///      @include inputPlaceholder() {
+///          padding: 15px;
+///      }
+///  }
+///
+@mixin inputPlaceholder() {
+    $selector: '';
+    $prefixes: (
+        moz: '::-moz',
+        webkit: '::-webkit',
+        ie: ':-ms'
+    );
+    @each $prop, $value in $prefixes {
+        @if $prop != 'moz' {
+            $selector: #{$value}-input-placeholder;
+        } @else {
+            $selector: #{$value}-placeholder;
+        }
+        @if & {
+            &#{$selector} {
+                @content;
+            }
+        } @else {
+            #{$selector} {
+                @content;
+            }
+        }
+    }
+}

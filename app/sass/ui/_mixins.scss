@@ -1,0 +1,30 @@
+/// Set dimensions for SVG objects
+/// @param $width [55px] - width of the SVG
+/// @param $height [55px] - height of the SVG
+/// @param $fill [currentcolor]  - color of the svg
+/// @content
+/// @author Michael Turnwall
+@mixin svgShape($width: 55px, $height: $width, $fill: currentColor) {
+    display: inline-block;
+    fill: $fill;
+    vertical-align: middle;
+    width: $width;
+    height: $height;
+    @content;
+}
+
+// Set a breakpoint based on the $media-queries map. This is
+// a wrapper for the susy-breakpoint mixin
+// @param {String} $name - property from the media-queries map
+// @param {Number} $context [12] - number of susy columns to base width off of
+// @require {variable} $media-queries
+// @author Michael Turnwall
+@mixin set-breakpoint($name, $context: 12) {
+    @if map-has-key($media-queries, $name) {
+        @include susy-breakpoint(map-get($media-queries, $name), $context) {
+            @content;
+        }
+    } @else {
+        @warn "No breakpoint named '#{$name}' was found.";
+    }
+}

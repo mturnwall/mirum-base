@@ -1,0 +1,118 @@
+/// Fallback unit type for relative fonts
+/// @group fonts
+$font-fallback-type: '%';
+
+/// Generate a font size based on rem fonts with a fallback for older browsers
+/// @param {Number} $actual - the actual font size the text should be
+/// @param {Number} $relative ($font-size-base) - number to divide $actual by to find the rem value
+///
+/// @requires {function} get-relative-font-size
+/// @requires $font-size-base
+///
+/// @group fonts
+///
+/// @example scss
+///  @include fontSize(18)
+///  // using a $font-size-base of 14 generates
+///  // font-size: 129%
+///  // font-size: 1.28571rem
+@mixin font-size($actual, $relative: $font-size-base) {
+    @if $font-fallback-type == '%' {
+        font-size: get-relative-font-size($actual, $relative, $font-fallback-type);
+    } @else {
+        font-size: $actual;
+    }
+    font-size: get-relative-font-size($actual, $relative, 'rem');
+}
+
+////
+/// Font-Face Generator (FF)
+/// @author Hugo Giraudel, Michael Turnwall
+////
+
+/// Path to the location of the font files
+/// @type String
+$ff-dir: '/fonts' !default;
+
+/// List storing all the fonts to import
+/// The keys for `weight` and `style` are optional. They default
+/// to `normal` in the @font-face rule.
+/// @type List
+/// @example scss
+///     // Here is how the map should be setup.
+///     $ff-map: (
+///       'Proxima-Nova': (
+///         'Proxima-Nova-Light': (
+///           weight: '500',
+///           src: (
+///             woff: 'Proxima-Nova-Light.woff',
+///             ttf: 'Proxima-Nova-Light.ttf'
+///           )
+///         ),
+///         'Proxima-Nova-Italic': (
+///           src: (
+///             woff: 'Proxima-Nova-Italic.woff',
+///             ttf: 'Proxima-Nova-Italic.ttf'
+///           ),
+///           style: italic
+///         ),
+///         'Proxima-Nova-Regular': (
+///           src: (
+///             woff: 'Proxima-Nova-Regular.woff',
+///             ttf: 'Proxima-Nova-Regular.ttf'
+///           )
+///         )
+///       )
+///     );
+/// @group fonts
+$ff-map: () !default;
+
+/// Function to build a valid `src` from a map of sources
+/// @param {Map} $font - Font to build the source for
+/// @return {List}
+/// @group fonts
+/// @access private
+@function ff-get-src($font) {
+    $src: ();
+
+    @each $format, $file in map-get($font, 'src') {
+        $src: append($src, url($ff-dir + '/' + $file) format(quote($format)), 'comma');
+    }
+
+    @return $src;
+}
+
+/// Import a single font.
+/// @param {String} $name - Name of the font to import
+/// @param {List} $src - Sources of the font to import
+/// @param {String | Number} $weight [normal] - Weight of the font to import
+/// @param {String | Number} $style [normal] - Style of the font to import
+/// @group fonts
+@mixin ff-single($fontName, $src, $weight: normal, $style: normal) {
+    @at-root {
+        @font-face {
+            font-family: quote($fontName);
+            src: $src;
+            font-weight: unquote($weight);
+            font-style: unquote($style);
+        }
+    }
+}
+
+/// This mixin is used to create a batch of @font-face rules using
+/// a Sass map.
+/// @param {Map} $fonts - a Sass map of the fonts
+///
+/// @see $ff-map
+/// @requires ff-single
+/// @requires ff-get-src
+/// @group fonts
+@mixin ff-batch($fonts) {
+    @each $font-group, $fonts in $fonts {
+        @each $font-name, $font-properties in $fonts {
+            $src: ff-get-src($font-properties);
+            $font: map-merge($font-properties, ('src': $src));
+            @include ff-single($font-group, $font...);
+        }
+    }
+}

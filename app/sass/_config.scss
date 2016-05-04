@@ -1,0 +1,50 @@
+/// Susy config
+$susy: (
+    container: 1200px,
+    columns: 12,
+    column-width: 80px,
+    gutters: 1 / 5,
+    math: fluid,
+    global-box-sizing: border-box
+);
+
+/// media queries
+$media-queries: (
+    mobile: (max-width: 767px),
+    tablet: 768px 1024px,
+    desktop: 1200px
+);
+
+//***** Colors *****/
+
+
+/// Button themes
+/// @example scss
+///     $button-themes: (
+///         primary: (
+///             bgColor: $color-vista-blue,
+///             color: $color-white
+///         ),
+///         link: (
+///             bgColor: transparent,
+///             color: $color-monza
+///         )
+///     );
+$button-themes: ();
+
+//***** Typography *****/
+/// Base font size for the page. Assign to the <html> element
+/// @group Fonts
+$font-size-base: 16;
+
+/// Default page font stack
+/// @group Fonts
+$font-family-sans: Helvetica, Arial, sans-serif;
+
+/// Alternative font stack
+/// @group Fonts
+$font-family-sans-alt: Helvetica, Arial, sans-serif;
+
+/// Headers font stack
+/// @group Fonts
+$font-family-heading: $font-family-sans-alt;
